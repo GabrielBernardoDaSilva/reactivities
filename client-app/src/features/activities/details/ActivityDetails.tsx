@@ -16,6 +16,7 @@ interface DetailParams {
 
 const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
   match,
+  history,
 }) => {
   const activityStore = useContext(ActivityStore);
   const { activity, loadActivity, loadingInitial } = activityStore;
@@ -31,7 +32,7 @@ const ActivityDetails: React.FC<RouteComponentProps<DetailParams>> = ({
     <Grid>
       <GridColumn width={10}>
         <ActivityDetailedHeaders activity={activity} />
-        <ActivityDetailedInfo activity={activity}/>
+        <ActivityDetailedInfo activity={activity} />
         <ActivityDetailedChat />
       </GridColumn>
       <GridColumn width={6}>
