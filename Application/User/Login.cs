@@ -47,7 +47,7 @@ namespace Application.User
             public async Task<User> Handle(Query request,
                 CancellationToken cancellationToken)
             {
-                var user = await _userManager.FindByEmailAsync(request.Email);
+                var user = await _userManager.FindByEmailAsync(request.Email.ToLower());
                 if (user is null)
                     throw new RestException(HttpStatusCode.Unauthorized);
 
