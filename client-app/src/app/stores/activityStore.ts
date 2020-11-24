@@ -5,6 +5,7 @@ import { SyntheticEvent } from "react";
 import { history } from "../..";
 import { toast } from "react-toastify";
 import { RootStore } from "./rootStore";
+import { setActivityProps } from "../common/util/util";
 
 
 
@@ -46,11 +47,12 @@ export default class ActivityStore {
 
   @action loadActivities = async () => {
     this.loadingInitial = true;
+    const user = this.rootStore.userStore.user!;
     try {
       const activities = await agent.Activities.list();
       runInAction("Load activities", () => {
         activities.forEach((activity) => {
-          activity.date = new Date(activity.date);
+          activity = setActivityProps(activity, user);
           this.activityRegistry.set(activity.id, activity);
         });
         this.loadingInitial = false;
