@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { config } from "process";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { IActivity } from "../models/Activity";

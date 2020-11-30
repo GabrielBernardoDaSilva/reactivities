@@ -1,5 +1,4 @@
 using System.Linq;
-using AutoMapper;
 using Domain;
 
 namespace Application.Activities

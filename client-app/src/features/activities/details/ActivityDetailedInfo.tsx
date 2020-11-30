@@ -6,6 +6,7 @@ import { IActivity } from "../../../app/models/Activity";
 const ActivityDetailedInfo: React.FC<{ activity: IActivity }> = ({
   activity,
 }) => {
+  
   return (
     <Segment.Group>
       <Segment attached="top">

@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Header, Grid, Image, Button } from "semantic-ui-react";
+import { Header, Grid, Button } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 import PhotoWidgetDropzone from "./PhotoWidgetDropzone";
 import PhotoWidgetCropper from "./PhotoWidgetCropper";
@@ -17,7 +17,7 @@ const PhotoUploadWidget: React.FC<IProps> = ({ loading, uploadPhoto }) => {
     return () => {
       files.forEach((file) => URL.revokeObjectURL(file.preview));
     };
-  });
+  },[setFiles, files]);
   return (
     <Fragment>
       <Grid>
