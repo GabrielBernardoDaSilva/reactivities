@@ -1,5 +1,6 @@
 import { action, observable, runInAction, computed } from "mobx";
 import { toast } from "react-toastify";
+import { displayName } from "react-widgets/lib/SelectList";
 import { runInContext } from "vm";
 import agent from "../api/agent";
 import { IPhoto, IProfile } from "../models/profile";
@@ -90,6 +91,22 @@ export default class ProfileStore {
     } catch (error) {
       toast.error("Problem deleting photo!");
       runInAction(() => (this.loading = false));
+    }
+  };
+
+  @action updateProfile = async (profile: Partial<IProfile>) => {
+    try {
+      await agent.Profiles.updatePrfile(profile);
+      runInAction(() => {
+        if (
+          profile.displayName !== this.rootStore.userStore.user!.displayName
+        ) {
+          this.rootStore.userStore.user!.displayName = profile.displayName!;
+        }
+        this.profile = { ...this.profile!, ...profile };
+      });
+    } catch (error) {
+      toast.error('Error in update profile');
     }
   };
 }
