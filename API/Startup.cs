@@ -22,6 +22,7 @@ using Infrastructure.Photos;
 using API.SignalR;
 using System.Threading.Tasks;
 using Application.Profile;
+using System;
 
 namespace API
 {
@@ -34,14 +35,40 @@ namespace API
 
         public IConfiguration _configuration { get; }
 
-        
-        public void ConfigureServices(IServiceCollection services)
+
+
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            // services.AddDbContext<DataContext>(opt =>
+            // {
+            //     opt.UseLazyLoadingProxies();
+            //     opt.UseSqlite(_configuration.GetConnectionString("DefaultConnection"));
+            // });
+
+            // ConfigureServices(services);
+            services.AddDbContext<DataContext>(opt =>
+            {
+                opt.UseLazyLoadingProxies();
+                opt.UseMySql(_configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            ConfigureServices(services);
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
         {
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseLazyLoadingProxies();
-                opt.UseSqlite(_configuration.GetConnectionString("ConnectionStrings"));
+                opt.UseMySql(_configuration.GetConnectionString("DefaultConnection"));
             });
+
+            ConfigureServices(services);
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+
             services.AddSignalR();
             services.AddControllers(opt =>
             {
@@ -58,7 +85,12 @@ namespace API
             {
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000").AllowCredentials();
+                    policy
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .WithExposedHeaders("WWW-Authenticate")
+                        .WithOrigins("http://localhost:3000")
+                        .AllowCredentials();
                 });
             });
 
@@ -87,7 +119,9 @@ namespace API
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = key,
                         ValidateAudience = false,
-                        ValidateIssuer = false
+                        ValidateIssuer = false,
+                        ValidateLifetime = true,
+                        ClockSkew = TimeSpan.Zero
                     };
                     opt.Events = new JwtBearerEvents
                     {
@@ -119,6 +153,9 @@ namespace API
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.UseRouting();
             app.UseCors("CorsPolicy");
 
@@ -131,6 +168,7 @@ namespace API
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chat");
+                endpoints.MapFallbackToController("Index", "Fallback");
             });
         }
     }

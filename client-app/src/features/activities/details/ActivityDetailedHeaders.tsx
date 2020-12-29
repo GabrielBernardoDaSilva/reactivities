@@ -22,8 +22,10 @@ const activityImageTextStyle = {
 const ActivityDetailedHeaders: React.FC<{ activity: IActivity }> = ({
   activity,
 }) => {
+  console.log(activity)
   const rootStore = useContext(RootStoreContext);
   const {attendActivity, cancelAttendance, loading} = rootStore.activityStore;
+  const {user} = rootStore.userStore;
   const host = activity.attendees.filter((x) => x.isHost)[0];
   return (
     <Segment.Group>
@@ -56,7 +58,7 @@ const ActivityDetailedHeaders: React.FC<{ activity: IActivity }> = ({
         </Segment>
       </Segment>
       <Segment clearing attached="bottom">
-        {activity.isHost ? (
+        {host.userName === user!.username ? (
           <Button
             color="orange"
             as={Link}

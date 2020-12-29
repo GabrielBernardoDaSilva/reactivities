@@ -1,4 +1,4 @@
-import { action, observable, computed, runInAction, reaction } from "mobx";
+import { action, observable, computed, runInAction, reaction, toJS } from "mobx";
 import { IActivity, IAttendee } from "../models/Activity";
 import agent from "../api/agent";
 import { SyntheticEvent } from "react";
@@ -73,7 +73,7 @@ export default class ActivityStore {
 
   @action createHubConnection = (activityId: string) => {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5000/chat", {
+      .withUrl(process.env.REACT_APP_CHAT_URL!, {
         accessTokenFactory: () => this.rootStore.commonStore.token!,
       })
       .configureLogging(LogLevel.Information)
@@ -83,7 +83,6 @@ export default class ActivityStore {
       .start()
       .then(() => console.log(this.hubConnection!.state))
       .then(() => {
-        console.log("Attemping to join group");
         this.hubConnection!.invoke("AddToGroup", activityId);
       })
       .catch((error) => {
@@ -96,9 +95,7 @@ export default class ActivityStore {
       });
     });
 
-    this.hubConnection.on("Send", (message) => {
-      toast.info(message);
-    });
+
   };
 
   @action stopHubConnection = () => {
@@ -146,7 +143,7 @@ export default class ActivityStore {
     const user = this.rootStore.userStore.user!;
     try {
       const activitiesEnvelope = await agent.Activities.list(this.axiosParams);
-      const { activities, activityCount } = activitiesEnvelope;
+      const { activityCount } = activitiesEnvelope;
       runInAction("Load activities", () => {
         activitiesEnvelope.activities.forEach((activity) => {
           activity = setActivityProps(activity, user);
@@ -233,8 +230,7 @@ export default class ActivityStore {
     let activity: IActivity = this.getActivity(id);
     if (activity) {
       this.activity = activity;
-
-      return activity;
+      return toJS(activity);
     } else {
       this.loadingInitial = true;
       try {
